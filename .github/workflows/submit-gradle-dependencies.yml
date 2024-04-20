@@ -1,23 +1,25 @@
-name: Submit dependencies to GitHub Dependency Graph
-on:
-  push:
-    branches:
-      - trunk
-      - release/*
-permissions:
-  contents: write
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-      - name: Setup Gradle to generate and submit dependency graphs
-        uses: gradle/gradle-build-action@v2
-        with:
-          dependency-graph: generate-and-submit
-      - name: Generate the dependency graph which will be submitted post-job
-        run: ./gradlew :Simplenote:dependencies :Wear:dependencies
+    - continue-on-error: true
+      uses: actions/checkout@v4
+    - continue-on-error: true
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: '17'
+    - continue-on-error: true
+      name: Setup Gradle to generate and submit dependency graphs
+      uses: gradle/gradle-build-action@v2
+      with:
+        dependency-graph: generate-and-submit
+    - continue-on-error: true
+      name: Generate the dependency graph which will be submitted post-job
+      run: ./gradlew :Simplenote:dependencies :Wear:dependencies
+name: Submit dependencies to GitHub Dependency Graph
+on:
+  repository_dispatch:
+    types: trigger-ga___submit-gradle-dependencies.yml
+permissions:
+  contents: write
